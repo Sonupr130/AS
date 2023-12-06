@@ -1,0 +1,189 @@
+/* eslint-disable react/display-name */
+/* eslint-disable react/prop-types */
+import { Suspense, useState } from "react";
+import {
+  Await,
+  Form,
+  useNavigation,
+  useActionData,
+  Link,
+} from "react-router-dom";
+import axios from "axios";
+import {
+  Modal,
+  ModalDialog,
+  ModalClose,
+  Typography,
+  FormControl,
+  FormLabel,
+  Input,
+  Stack,
+  Select,
+  Option,
+  Button,
+} from "@mui/joy";
+
+import success from "../assets/success.png";
+
+const SubmissionModal = ({ isOpen, setIsOpen }) => {
+  const navigation = useNavigation();
+  const data = useActionData();
+
+  // Sample data for dropdowns
+  const branches = [
+    "Computer Science",
+    "Electrical Engineering",
+    "Mechanical Engineering",
+  ];
+  const semesters = ["1st Semester", "2nd Semester", "3rd Semester"];
+
+  // Sample data for subjects based on branch and semester
+  const subjectsData = {
+    "Computer Science": {
+      1: ["Mathematics", "Programming Fundamentals"],
+      2: ["Data Structures", "Algorithms"],
+      3: ["Database Management", "Operating Systems"],
+      4: ["Database Management", "Operating Systems"],
+      5: ["Database Management", "Operating Systems"],
+      6: ["Database Management", "Operating Systems"],
+      7: ["Database Management", "Operating Systems"],
+      8: ["Database Management", "Operating Systems"],
+    },
+    "Electrical Engineering": {
+      1: ["Physics", "Circuit Theory"],
+      2: ["Electromagnetics", "Digital Electronics"],
+      3: ["Control Systems", "Power Systems"],
+    },
+    "Mechanical Engineering": {
+      1: ["Engineering Mechanics", "Thermodynamics"],
+      2: ["Fluid Mechanics", "Machine Design"],
+      3: ["Heat Transfer", "Materials Science"],
+    },
+  };
+
+  // State variables to store selected values
+  const [selectedBranch, setSelectedBranch] = useState("");
+  const [selectedSemester, setSelectedSemester] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState("");
+
+  // Update subjects based on selected branch and semester
+  const subjects = subjectsData[selectedBranch]?.[selectedSemester] || [];
+
+  return (
+    <Modal onClose={() => setIsOpen(false)} open={isOpen}>
+      <ModalDialog sx={{ width: data ? 350 : 800 }}>
+        <ModalClose />
+
+        {data ? (
+          <Stack spacing={2} textAlign={"center"}>
+            <img src={success} height={"300px"} />
+            <div>
+              <Typography level="h6" sx={{ mb: 1 }}>
+                Thank You!{" "}
+                <Typography
+                  sx={{
+                    fontWeight: 700,
+                    color: (theme) => theme.palette.primary[500],
+                  }}
+                >
+                  {data.data.attributes.name}
+                </Typography>
+              </Typography>
+              <Typography>
+                Sit tight and relax! Your submission is now in the review
+                process. Once approved, we'll swiftly send you a confirmation
+                email.
+              </Typography>
+            </div>
+            <Button component={Link} to="questions">
+              View All Questions 🎉
+            </Button>
+          </Stack>
+        ) : (
+          <Stack spacing={3}>
+            <Typography sx={{ fontWeight: 600 }}>
+              Submit Your Question Paper
+            </Typography>
+            <Form method="post" encType="multipart/form-data">
+              <Stack
+                spacing={2}
+                sx={{
+                  "& .MuiStack-root>*": {
+                    flexBasis: "50%",
+                    maxWidth: "50%",
+                    overflow: "hidden",
+                  },
+                }}
+              >
+                <Stack direction={"row"} spacing={2}>
+                  {/* Branch Dropdown */}
+                  <FormControl>
+                    <FormLabel>Branch</FormLabel>
+                    <Select
+                      value="selectedBranch"
+                      onChange={(e) => setSelectedBranch(e.target.value)}
+                    >
+                      {branches.map((branch, index) => (
+                        <Option key={index} value={branch}>
+                          {branch}
+                        </Option>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Stack>
+
+                {/* Semester Dropdown */}
+                <Stack direction={"row"} spacing={2}>
+                  <FormControl sx={{ flex: 1 }}>
+                    <FormLabel>Semester</FormLabel>
+                    <Select
+                      value="selectedSemester"
+                      onChange={(e) => setSelectedBranch(e.target.value)}
+                    >
+                      {semesters.map((semester, index) => (
+                        <Option key={index} value={semester}>
+                          {semester}
+                        </Option>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  {/* Subject Dropdown */}
+                  <FormControl>
+                    <FormLabel>Subject</FormLabel>
+                    <Select
+                      value="selectedSubject"
+                      onChange={(e) => setSelectedSubject(e.target.value)}
+                    >
+                      {subjects.map((subject, index) => (
+                        <Option key={index} value={subject}>
+                          {subject}
+                        </Option>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Stack>
+                <div>
+        <p>Selected Branch: {selectedBranch}</p>
+        <p>Selected Semester: {selectedSemester}</p>
+        <p>Selected Subject: {selectedSubject}</p>
+      </div>
+              </Stack>
+              <Button
+                loading={navigation.state === "submitting"}
+                disabled={navigation.state === "submitting"}
+                sx={{ mt: 2 }}
+                fullWidth
+                type="submit"
+              >
+                Submit Your Paper
+              </Button>
+            </Form>
+          </Stack>
+        )}
+      </ModalDialog>
+    </Modal>
+  );
+};
+
+export default SubmissionModal;
